@@ -9,7 +9,7 @@
  * @copyright 2013-2022 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.5
+ * @version 0.5.1
  */
 
 if (!defined('SMF'))
@@ -156,7 +156,7 @@ final class MessageBookmarks
 	 */
 	public function prepareDisplayContext(array &$output, array &$message)
 	{
-		global $context, $txt, $scripturl;
+		global $context, $txt, $scripturl, $modSettings;
 
 		if (empty($context['use_message_bookmarks']) || empty($context['user']['id']) || $this->isIgnoredBoard())
 			return;
@@ -178,11 +178,9 @@ final class MessageBookmarks
 
 		template_quickbuttons($buttons, 'mb_button_list');
 
-		$widget = ob_get_clean();
-
 		$output['custom_fields']['above_signature'][] = array(
 			'col_name' => 'mb_buttons',
-			'value'    => $widget
+			'value'    => ob_get_clean()
 		);
 
 		if (!empty($message['bookmark_id']) && !empty($modSettings['mb_class'])) {
@@ -407,6 +405,9 @@ final class MessageBookmarks
 		);
 	}
 
+	/**
+	 * @hook integrate_delete_members
+	 */
 	public function deleteMembers(array $users)
 	{
 		global $smcFunc;
@@ -416,7 +417,7 @@ final class MessageBookmarks
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}message_bookmarks
-			WHERE user IN ({array_int:users})',
+			WHERE user_id IN ({array_int:users})',
 			[
 				'users' => $users
 			]
@@ -425,6 +426,9 @@ final class MessageBookmarks
 		clean_cache();
 	}
 
+	/**
+	 * @hook integrate_remove_message
+	 */
 	public function removeMessage(int $message)
 	{
 		global $smcFunc;
@@ -434,7 +438,7 @@ final class MessageBookmarks
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}message_bookmarks
-			WHERE msg = {int:id_msg}',
+			WHERE msg_id = {int:id_msg}',
 			[
 				'id_msg' => $message
 			]
@@ -443,6 +447,9 @@ final class MessageBookmarks
 		clean_cache();
 	}
 
+	/**
+	 * @hook integrate_remove_topics
+	 */
 	public function removeTopics(array $topics)
 	{
 		global $smcFunc;
@@ -452,7 +459,7 @@ final class MessageBookmarks
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}message_bookmarks
-			WHERE topic IN ({array_int:topics})',
+			WHERE topic_id IN ({array_int:topics})',
 			[
 				'topics' => $topics
 			]
@@ -463,14 +470,14 @@ final class MessageBookmarks
 
 	private function addBookmark()
 	{
-		global $context, $txt, $smcFunc;
+		global $context, $smcFunc, $txt;
 
 		$context['robot_no_index'] = true;
 
 		loadTemplate('MessageBookmarks');
 
 		$context['form_hidden_vars'] = [];
-		$msg = (int) str_replace('modify_button_', '', $_REQUEST['msg']);
+		$msg = (int) $_REQUEST['msg'];
 
 		$request = $smcFunc['db_query']('', '
 			SELECT subject, id_topic
@@ -527,7 +534,7 @@ final class MessageBookmarks
 
 	private function editBookmark()
 	{
-		global $context, $txt, $smcFunc;
+		global $context, $smcFunc, $txt;
 
 		$context['robot_no_index'] = true;
 
