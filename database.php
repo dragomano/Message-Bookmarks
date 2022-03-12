@@ -12,22 +12,25 @@ $tables[] = array(
 	'name' => 'message_bookmarks',
 	'columns' => array(
 		array(
-			'name' => 'bookmark_id',
-			'type' => 'int',
-			'size' => 10,
-			'auto' => true
+			'name'     => 'bookmark_id',
+			'type'     => 'int',
+			'size'     => 10,
+			'unsigned' => true,
+			'auto'     => true
 		),
 		array(
-			'name' => 'msg_id',
-			'type' => 'int',
-			'size' => 10,
-			'null' => false
+			'name'     => 'msg_id',
+			'type'     => 'int',
+			'size'     => 10,
+			'unsigned' => true,
+			'null'     => false
 		),
 		array(
-			'name' => 'topic_id',
-			'type' => 'mediumint',
-			'size' => 8,
-			'null' => false
+			'name'     => 'topic_id',
+			'type'     => 'mediumint',
+			'size'     => 8,
+			'unsigned' => true,
+			'null'     => false
 		),
 		array(
 			'name'    => 'bookmark_title',
@@ -42,10 +45,11 @@ $tables[] = array(
 			'default' => ''
 		),
 		array(
-			'name' => 'user_id',
-			'type' => 'mediumint',
-			'size' => 8,
-			'null' => false
+			'name'     => 'user_id',
+			'type'     => 'mediumint',
+			'size'     => 8,
+			'unsigned' => true,
+			'null'     => false
 		)
 	),
 	'indexes' => array(
@@ -63,10 +67,8 @@ $tables[] = array(
 
 db_extend('packages');
 
-foreach($tables as $table) {
+foreach ($tables as $table) {
 	$smcFunc['db_create_table']('{db_prefix}' . $table['name'], $table['columns'], $table['indexes'], array(), 'update');
-	if (isset($table['default']))
-		$smcFunc['db_insert']('ignore', '{db_prefix}' . $table['name'], $table['default']['columns'], $table['default']['values'], $table['default']['keys']);
 }
 
 if (SMF == 'SSI')
