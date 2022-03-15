@@ -4,7 +4,7 @@
 ![Hooks only: Yes](https://img.shields.io/badge/Hooks%20only-YES-blue)
 
 * **Tested on:** PHP 7.4.28
-* **Languages:** English, Russian, Serbian
+* **Languages:** English, Russian, Serbian, Italian
 
 ## Description
 With this mod, your users can create bookmarks for any messages in topics.
