@@ -9,7 +9,7 @@
  * @copyright 2013-2022 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.6
+ * @version 0.7
  */
 
 if (!defined('SMF'))
@@ -32,6 +32,7 @@ final class MessageBookmarks
 		add_integration_function('integrate_delete_members', __CLASS__ . '::deleteMembers#', false, __FILE__);
 		add_integration_function('integrate_remove_message', __CLASS__ . '::removeMessage#', false, __FILE__);
 		add_integration_function('integrate_remove_topics', __CLASS__ . '::removeTopics#', false, __FILE__);
+		add_integration_function('integrate_forum_stats', __CLASS__ . '::forumStats#', false, __FILE__);
 	}
 
 	/**
@@ -492,6 +493,113 @@ final class MessageBookmarks
 		);
 
 		clean_cache();
+	}
+
+	public function forumStats()
+	{
+		global $context, $modSettings, $smcFunc, $scripturl;
+
+		if ($context['current_action'] !== 'stats')
+			return;
+
+		// Самые часто добавляемые в закладки сообщения
+		if (($context['stats_blocks']['replies'] = cache_get_data('stats_top_mb_messages', 3600)) == null) {
+			$result = $smcFunc['db_query']('', '
+				SELECT m.id_msg, m.subject, COUNT(mb.msg_id) AS num_items
+				FROM {db_prefix}message_bookmarks AS mb
+					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = mb.msg_id AND m.approved = {int:is_approved})
+				WHERE {query_see_board}
+				GROUP BY m.id_msg, m.subject, mb.msg_id
+				ORDER BY num_items DESC
+				LIMIT 10',
+				array(
+					'is_approved' => 1,
+				)
+			);
+
+			if ($smcFunc['db_num_rows']($result) > 0) {
+				$max_items = 1;
+
+				$context['stats_blocks']['replies'] = [];
+				while ($row = $smcFunc['db_fetch_assoc']($result)) {
+					if ($row['num_items'] < 10)
+						continue;
+
+					censorText($row['subject']);
+
+					$context['stats_blocks']['replies'][] = array(
+						'id'   => $row['id_msg'],
+						'name' => $row['subject'],
+						'num'  => $row['num_items'],
+						'link' => '<a href="' . $scripturl . '?msg=' . $row['id_msg'] . '">' . $row['subject'] . '</a>'
+					);
+
+					if ($max_items < $row['num_items'])
+						$max_items = $row['num_items'];
+				}
+
+				$smcFunc['db_free_result']($result);
+
+				if (!empty($context['stats_blocks']['replies'])) {
+					foreach ($context['stats_blocks']['replies'] as $i => $reply) {
+						$context['stats_blocks']['replies'][$i]['percent'] = round(($reply['num'] * 100) / $max_items);
+						$context['stats_blocks']['replies'][$i]['num'] = comma_format($context['stats_blocks']['replies'][$i]['num']);
+					}
+				}
+			}
+
+			cache_put_data('stats_top_mb_messages', $context['stats_blocks']['replies'], 3600);
+		}
+
+		if (empty($context['stats_blocks']['replies']))
+			unset($context['stats_blocks']['replies']);
+
+		// Пользователи с наибольшим количеством закладок
+		if (($context['stats_blocks']['members'] = cache_get_data('stats_top_mb_members', 3600)) == null) {
+			$result = $smcFunc['db_query']('', '
+				SELECT m.id_member, m.real_name, COUNT(mb.user_id) AS num_items
+				FROM {db_prefix}message_bookmarks AS mb
+					INNER JOIN {db_prefix}members AS m ON (m.id_member = mb.user_id)
+				GROUP BY m.id_member, m.real_name, mb.user_id
+				ORDER BY num_items DESC
+				LIMIT 10',
+				array()
+			);
+
+			if ($smcFunc['db_num_rows']($result) > 0) {
+				$max_items = 1;
+
+				$context['stats_blocks']['members'] = [];
+				while ($row = $smcFunc['db_fetch_assoc']($result)) {
+					if ($row['num_items'] < 10)
+						continue;
+
+					$context['stats_blocks']['members'][] = array(
+						'id'   => $row['id_member'],
+						'name' => $row['real_name'],
+						'num'  => $row['num_items'],
+						'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
+					);
+
+					if ($max_items < $row['num_items'])
+						$max_items = $row['num_items'];
+				}
+
+				$smcFunc['db_free_result']($result);
+
+				if (!empty($context['stats_blocks']['members'])) {
+					foreach ($context['stats_blocks']['members'] as $i => $member)	{
+						$context['stats_blocks']['members'][$i]['percent'] = round(($member['num'] * 100) / $max_items);
+						$context['stats_blocks']['members'][$i]['num'] = comma_format($context['stats_blocks']['members'][$i]['num']);
+					}
+				}
+			}
+
+			cache_put_data('stats_top_mb_members', $context['stats_blocks']['members'], 3600);
+		}
+
+		if (empty($context['stats_blocks']['members']))
+			unset($context['stats_blocks']['members']);
 	}
 
 	private function addBookmark()

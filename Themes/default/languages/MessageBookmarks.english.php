@@ -27,3 +27,6 @@ $txt['mb_no_items'] = 'There are no bookmarks yet.';
 
 $txt['mb_add_bookmark'] = 'Add bookmark';
 $txt['mb_remove_bookmark'] = 'Remove bookmark';
+
+$txt['top_replies'] = 'Most frequently bookmarked posts';
+$txt['top_members'] = 'Users with the most bookmarks';
