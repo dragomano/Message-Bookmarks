@@ -22,5 +22,5 @@ $txt['mb_profile_title'] = $txt['permissiongroup_message_bookmarks'];
 $txt['mb_profile_desc'] = 'Ovde možete da vidite svoje obeležene poruke.';
 $txt['mb_no_items'] = 'Još uvek nema sačuvanih poruka.';
 
-$txt['mb_add_bookmark'] = '💚 Sačuvaj poruku';
-$txt['mb_remove_bookmark'] = '💔 Ukloni poruku iz sačuvanih';
+$txt['mb_add_bookmark'] = 'Sačuvaj poruku';
+$txt['mb_remove_bookmark'] = 'Ukloni poruku iz sačuvanih';

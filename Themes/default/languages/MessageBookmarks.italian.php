@@ -22,5 +22,5 @@ $txt['mb_profile_title'] = $txt['permissiongroup_message_bookmarks'];
 $txt['mb_profile_desc'] = 'Puoi vedere i tuoi segnalibri qui.';
 $txt['mb_no_items'] = 'Non ci sono ancora segnalibri.';
 
-$txt['mb_add_bookmark'] = '💚 Aggiungi segnalibro';
-$txt['mb_remove_bookmark'] = '💔 Rimuovi segnalibro';
+$txt['mb_add_bookmark'] = 'Aggiungi segnalibro';
+$txt['mb_remove_bookmark'] = 'Rimuovi segnalibro';

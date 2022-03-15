@@ -11,6 +11,9 @@ $txt['mb_mod_desc'] = 'Here you can change settings of the Message Bookmarks mod
 $txt['mb_ignore_boards'] = 'Ignored boards';
 $txt['mb_ignored_boards_desc'] = 'Select the boards in which Message Bookmarks should NOT work';
 $txt['mb_class'] = 'A class for highlighting bookmarked posts in topics';
+$txt['mb_add_icon'] = 'Icon of adding a bookmark';
+$txt['mb_del_icon'] = 'Icon of deleting a bookmark';
+$txt['mb_icon_subtext'] = 'You can use emoji or FA code like <i>fas fa-bookmark</i>';
 
 $txt['permissiongroup_message_bookmarks'] = $txt['permissiongroup_simple_message_bookmarks'] = 'Message Bookmarks';
 $txt['permissionname_use_message_bookmarks'] = 'Using bookmarks';
@@ -22,5 +25,5 @@ $txt['mb_profile_title'] = $txt['permissiongroup_message_bookmarks'];
 $txt['mb_profile_desc'] = 'You can see your bookmarks here.';
 $txt['mb_no_items'] = 'There are no bookmarks yet.';
 
-$txt['mb_add_bookmark'] = '💚 Add bookmark';
-$txt['mb_remove_bookmark'] = '💔 Remove bookmark';
+$txt['mb_add_bookmark'] = 'Add bookmark';
+$txt['mb_remove_bookmark'] = 'Remove bookmark';

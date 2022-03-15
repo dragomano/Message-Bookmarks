@@ -9,7 +9,7 @@
  * @copyright 2013-2022 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.5.1
+ * @version 0.6
  */
 
 if (!defined('SMF'))
@@ -109,26 +109,54 @@ final class MessageBookmarks
 
 	public function settings()
 	{
-		global $context, $txt, $scripturl, $modSettings;
+		global $context, $txt, $scripturl, $modSettings, $smcFunc;
 
 		$context['page_title'] = $context['settings_title'] = $txt['mb_settings'];
 		$context['post_url'] = $scripturl . '?action=admin;area=modsettings;save;sa=mb';
-		$context[$context['admin_menu_name']]['tab_data']['tabs']['mb'] = ['description' => $txt['mb_mod_desc']];
+		$context[$context['admin_menu_name']]['tab_data']['description'] = $txt['mb_mod_desc'];
 		$context['permissions_excluded'] = [-1];
 
 		$txt['select_boards_from_list'] = $txt['mb_ignored_boards_desc'];
 
-		if (empty($modSettings['mb_class']))
-			updateSettings(['mb_class' => 'sticky']);
+		$addSettings = [];
+		if (!isset($modSettings['mb_class']))
+			$addSettings['mb_class'] = 'sticky';
+		if (!isset($modSettings['mb_add_icon']))
+			$addSettings['mb_add_icon'] = '&#128154;';
+		if (!isset($modSettings['mb_del_icon']))
+			$addSettings['mb_del_icon'] = '&#128148;';
+		if ($addSettings)
+			updateSettings($addSettings);
 
 		$config_vars = [
 			['boards', 'mb_ignore_boards'],
 			['text', 'mb_class'],
+			[
+				'text',
+				'mb_add_icon',
+				'subtext' => $txt['mb_icon_subtext'],
+				'value' => un_htmlspecialchars($modSettings['mb_add_icon'] ?? ''),
+				'postinput' => strpos($modSettings['mb_add_icon'], 'fa') !== false ? '<i class="' . $modSettings['mb_add_icon'] . '"></i>' : ''
+			],
+			[
+				'text',
+				'mb_del_icon',
+				'subtext' => $txt['mb_icon_subtext'],
+				'value' => un_htmlspecialchars($modSettings['mb_del_icon'] ?? ''),
+				'postinput' => strpos($modSettings['mb_del_icon'], 'fa') !== false ? '<i class="' . $modSettings['mb_del_icon'] . '"></i>' : ''
+			],
 			['permissions', 'use_message_bookmarks']
 		];
 
 		if (isset($_GET['save'])) {
 			checkSession();
+
+			if (isset($_POST['mb_add_icon']))
+				$_POST['mb_add_icon'] = $smcFunc['htmlspecialchars']($_POST['mb_add_icon']);
+
+			if (isset($_POST['mb_del_icon']))
+				$_POST['mb_del_icon'] = $smcFunc['htmlspecialchars']($_POST['mb_del_icon']);
+
 			saveDBSettings($config_vars);
 			redirectexit('action=admin;area=modsettings;sa=mb');
 		}
@@ -156,32 +184,30 @@ final class MessageBookmarks
 	 */
 	public function prepareDisplayContext(array &$output, array &$message)
 	{
-		global $context, $txt, $scripturl, $modSettings;
+		global $context, $modSettings, $txt, $scripturl;
 
 		if (empty($context['use_message_bookmarks']) || empty($context['user']['id']) || $this->isIgnoredBoard())
 			return;
 
+		$add_label = empty($modSettings['mb_add_icon']) ? '&#128154;' : (strpos($modSettings['mb_add_icon'], 'fa') !== false ? ('<i class="' . $modSettings['mb_add_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_add_icon']));
+		$del_label = empty($modSettings['mb_del_icon']) ? '&#128148;' : (strpos($modSettings['mb_del_icon'], 'fa') !== false ? ('<i class="' . $modSettings['mb_del_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_del_icon']));
+
 		$buttons = array(
 			'mb_add' => array(
-				'label' => $txt['mb_add_bookmark'],
-				'href'  => $scripturl . '?action=mb;sa=add;topic=' . $context['current_topic'] . ';msg=' . $output['id'],
-				'show'  => empty($message['bookmark_id'])
+				'label' => $add_label,
+				'javascript' => ' title="' . $txt['mb_add_bookmark'] . '"',
+				'href' => $scripturl . '?action=mb;sa=add;topic=' . $context['current_topic'] . ';msg=' . $output['id'],
+				'show' => empty($message['bookmark_id'])
 			),
 			'mb_remove' => array(
-				'label' => $txt['mb_remove_bookmark'],
-				'href'  => $scripturl . '?action=mb;sa=del;item=' . $message['bookmark_id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'show'  => !empty($message['bookmark_id'])
+				'label' => $del_label,
+				'javascript' => ' title="' . $txt['mb_remove_bookmark'] . '"',
+				'href' => $scripturl . '?action=mb;sa=del;item=' . $message['bookmark_id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+				'show' => !empty($message['bookmark_id'])
 			)
 		);
 
-		ob_start();
-
-		template_quickbuttons($buttons, 'mb_button_list');
-
-		$output['custom_fields']['above_signature'][] = array(
-			'col_name' => 'mb_buttons',
-			'value'    => ob_get_clean()
-		);
+		$output['quickbuttons'] = array_merge($buttons, $output['quickbuttons']);
 
 		if (!empty($message['bookmark_id']) && !empty($modSettings['mb_class'])) {
 			$output['css_class'] .= ' ' . $modSettings['mb_class'];
