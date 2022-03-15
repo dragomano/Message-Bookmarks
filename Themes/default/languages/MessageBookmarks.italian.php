@@ -11,6 +11,9 @@ $txt['mb_mod_desc'] = 'Qui puoi modificare le impostazioni dei segnalibri dei me
 $txt['mb_ignore_boards'] = 'Sezioni ignorate';
 $txt['mb_ignored_boards_desc'] = 'Seleziona le sezioni in cui i segnalibri dei messaggi NON dovrebbero funzionare';
 $txt['mb_class'] = 'Una classe per evidenziare i messaggi marcati come segnalibri negli discussioni ';
+$txt['mb_add_icon'] = 'Icona utilizzata per aggiungere segnalibro';
+$txt['mb_del_icon'] = 'Icona utilizzata per eliminare segnalibro';
+$txt['mb_icon_subtext'] = 'Puoi utilizare emoji o codice FA, ad esempio <i>fas fa-bookmark</i>';
 
 $txt['permissiongroup_message_bookmarks'] = $txt['permissiongroup_simple_message_bookmarks'] = 'Segnalibri dei messaggi';
 $txt['permissionname_use_message_bookmarks'] = 'Utilizzare Segnalibri';
