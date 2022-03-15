@@ -20,6 +20,7 @@
 		<remove-file name="$languagedir/MessageBookmarks.russian.php" />
 		<remove-file name="$languagedir/MessageBookmarks.serbian_latin.php" />
 		<remove-file name="$languagedir/MessageBookmarks.italian.php" />
+		<remove-file name="$languagedir/MessageBookmarks.turkish.php" />
 		<remove-file name="$themedir/MessageBookmarks.template.php" />
 		<remove-file name="$sourcedir/Class-MessageBookmarks.php" />
 	</uninstall>
