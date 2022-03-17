@@ -249,7 +249,7 @@ final class MessageBookmarks
 
 		$listOptions = array(
 			'id' => 'message_bookmarks',
-			'items_per_page' => 30,
+			'items_per_page' => 10,
 			'title' => $txt['mb_settings'],
 			'no_items_label' => $txt['mb_no_items'],
 			'base_href' => $scripturl . '?action=profile;area=bookmarks;u=1',
@@ -499,7 +499,7 @@ final class MessageBookmarks
 	{
 		global $context, $modSettings, $smcFunc, $scripturl;
 
-		if ($context['current_action'] !== 'stats')
+		if ($context['current_action'] !== 'stats' || empty($context['use_message_bookmarks']))
 			return;
 
 		// Самые часто добавляемые в закладки сообщения
@@ -508,6 +508,7 @@ final class MessageBookmarks
 				SELECT m.id_msg, m.subject, COUNT(mb.msg_id) AS num_items
 				FROM {db_prefix}message_bookmarks AS mb
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = mb.msg_id AND m.approved = {int:is_approved})
+					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 				WHERE {query_see_board}
 				GROUP BY m.id_msg, m.subject, mb.msg_id
 				ORDER BY num_items DESC
@@ -522,7 +523,7 @@ final class MessageBookmarks
 
 				$context['stats_blocks']['replies'] = [];
 				while ($row = $smcFunc['db_fetch_assoc']($result)) {
-					if ($row['num_items'] < 10)
+					if ($row['num_items'] < 4)
 						continue;
 
 					censorText($row['subject']);
@@ -571,7 +572,7 @@ final class MessageBookmarks
 
 				$context['stats_blocks']['members'] = [];
 				while ($row = $smcFunc['db_fetch_assoc']($result)) {
-					if ($row['num_items'] < 10)
+					if ($row['num_items'] < 2)
 						continue;
 
 					$context['stats_blocks']['members'][] = array(
