@@ -249,10 +249,10 @@ final class MessageBookmarks
 
 		$listOptions = array(
 			'id' => 'message_bookmarks',
-			'items_per_page' => 10,
+			'items_per_page' => 30,
 			'title' => $txt['mb_settings'],
 			'no_items_label' => $txt['mb_no_items'],
-			'base_href' => $scripturl . '?action=profile;area=bookmarks;u=1',
+			'base_href' => $scripturl . '?action=profile;area=bookmarks;u=' . $context['current_member'],
 			'default_sort_col' => 'title',
 			'get_items' => [
 				'function' => [$this, 'getAll']
