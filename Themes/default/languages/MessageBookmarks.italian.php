@@ -27,5 +27,5 @@ $txt['mb_no_items'] = 'Non ci sono ancora segnalibri.';
 
 $txt['mb_add_bookmark'] = 'Aggiungi segnalibro';
 $txt['mb_remove_bookmark'] = 'Rimuovi segnalibro';
-$txt['top_replies'] = 'Messaggi più frequentemente inseriti nei segnalibri';
-$txt['top_members'] = 'Utenti con più segnalibri';
+$txt['top_replies'] = 'Messaggi piÃ¹ frequentemente inseriti nei segnalibri';
+$txt['top_members'] = 'Utenti con piÃ¹ segnalibri';
