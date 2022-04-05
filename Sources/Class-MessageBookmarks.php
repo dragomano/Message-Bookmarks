@@ -9,7 +9,7 @@
  * @copyright 2013-2022 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.7
+ * @version 0.8
  */
 
 if (!defined('SMF'))
@@ -126,7 +126,11 @@ final class MessageBookmarks
 			$addSettings['mb_add_icon'] = '&#128154;';
 		if (!isset($modSettings['mb_del_icon']))
 			$addSettings['mb_del_icon'] = '&#128148;';
-		if ($addSettings)
+		if (!isset($modSettings['mb_show_top_messages_count']))
+			$addSettings['mb_show_top_messages_count'] = 10;
+		if (!isset($modSettings['mb_show_top_members_count']))
+			$addSettings['mb_show_top_members_count'] = 10;
+		if (!empty($addSettings))
 			updateSettings($addSettings);
 
 		$config_vars = [
@@ -146,7 +150,12 @@ final class MessageBookmarks
 				'value' => un_htmlspecialchars($modSettings['mb_del_icon'] ?? ''),
 				'postinput' => strpos($modSettings['mb_del_icon'], 'fa') !== false ? '<i class="' . $modSettings['mb_del_icon'] . '"></i>' : ''
 			],
-			['permissions', 'use_message_bookmarks']
+			['permissions', 'use_message_bookmarks'],
+			['title', 'spider_stats'],
+			['check', 'mb_show_top_messages_stats'],
+			['int', 'mb_show_top_messages_count'],
+			['check', 'mb_show_top_members_stats'],
+			['int', 'mb_show_top_members_count'],
 		];
 
 		if (isset($_GET['save'])) {
@@ -502,8 +511,8 @@ final class MessageBookmarks
 		if ($context['current_action'] !== 'stats' || empty($context['use_message_bookmarks']))
 			return;
 
-		// Самые часто добавляемые в закладки сообщения
-		if (($context['stats_blocks']['replies'] = cache_get_data('stats_top_mb_messages', 3600)) == null) {
+		// Most frequently bookmarked posts
+		if (!empty($modSettings['mb_show_top_messages_stats']) && ($context['stats_blocks']['replies'] = cache_get_data('stats_top_mb_messages', 3600)) == null) {
 			$result = $smcFunc['db_query']('', '
 				SELECT m.id_msg, m.subject, COUNT(mb.msg_id) AS num_items
 				FROM {db_prefix}message_bookmarks AS mb
@@ -523,7 +532,7 @@ final class MessageBookmarks
 
 				$context['stats_blocks']['replies'] = [];
 				while ($row = $smcFunc['db_fetch_assoc']($result)) {
-					if ($row['num_items'] < 4)
+					if ($row['num_items'] < (empty($modSettings['mb_show_top_messages_count']) ? 10 : $modSettings['mb_show_top_messages_count']))
 						continue;
 
 					censorText($row['subject']);
@@ -555,8 +564,8 @@ final class MessageBookmarks
 		if (empty($context['stats_blocks']['replies']))
 			unset($context['stats_blocks']['replies']);
 
-		// Пользователи с наибольшим количеством закладок
-		if (($context['stats_blocks']['members'] = cache_get_data('stats_top_mb_members', 3600)) == null) {
+		// Members with the most bookmarks
+		if (!empty($modSettings['mb_show_top_members_stats']) && ($context['stats_blocks']['members'] = cache_get_data('stats_top_mb_members', 3600)) == null) {
 			$result = $smcFunc['db_query']('', '
 				SELECT m.id_member, m.real_name, COUNT(mb.user_id) AS num_items
 				FROM {db_prefix}message_bookmarks AS mb
@@ -572,7 +581,7 @@ final class MessageBookmarks
 
 				$context['stats_blocks']['members'] = [];
 				while ($row = $smcFunc['db_fetch_assoc']($result)) {
-					if ($row['num_items'] < 2)
+					if ($row['num_items'] < (empty($modSettings['mb_show_top_members_count']) ? 10 : $modSettings['mb_show_top_members_count']))
 						continue;
 
 					$context['stats_blocks']['members'][] = array(
