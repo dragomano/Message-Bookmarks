@@ -14,6 +14,10 @@ $txt['mb_class'] = 'A class for highlighting bookmarked posts in topics';
 $txt['mb_add_icon'] = 'Icon of adding a bookmark';
 $txt['mb_del_icon'] = 'Icon of deleting a bookmark';
 $txt['mb_icon_subtext'] = 'You can use emoji or FA code like <i>fas fa-bookmark</i>';
+$txt['mb_show_top_messages_stats'] = 'Show frequently bookmarked posts';
+$txt['mb_show_top_messages_count'] = 'Minimum number of posts to display in the top';
+$txt['mb_show_top_members_stats'] = 'Show members with the most bookmarks';
+$txt['mb_show_top_members_count'] = 'Minimum number of bookmarks members have to display in the top';
 
 $txt['permissiongroup_message_bookmarks'] = $txt['permissiongroup_simple_message_bookmarks'] = 'Message Bookmarks';
 $txt['permissionname_use_message_bookmarks'] = 'Using bookmarks';
