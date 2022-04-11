@@ -40,11 +40,7 @@ final class MessageBookmarks
 	 */
 	public function loadTheme()
 	{
-		global $context;
-
 		loadLanguage('MessageBookmarks');
-
-		$context['use_message_bookmarks'] = allowedTo('use_message_bookmarks');
 	}
 
 	/**
@@ -179,14 +175,14 @@ final class MessageBookmarks
 	 */
 	public function queryMessage(array &$msg_selects, array &$msg_tables, array &$msg_parameters)
 	{
-		global $context, $modSettings;
+		global $user_info;
 
-		if (empty($context['use_message_bookmarks']) || $this->isIgnoredBoard())
+		if (empty(allowedTo('use_message_bookmarks')) || $this->isIgnoredBoard())
 			return;
 
 		$msg_selects[] = 'mb.bookmark_id';
 		$msg_tables[] = 'LEFT JOIN {db_prefix}message_bookmarks AS mb ON (mb.msg_id = id_msg AND mb.user_id = {int:current_user})';
-		$msg_parameters['current_user'] = $context['user']['id'];
+		$msg_parameters['current_user'] = $user_info['id'];
 	}
 
 	/**
@@ -196,7 +192,7 @@ final class MessageBookmarks
 	{
 		global $context, $modSettings, $txt, $scripturl;
 
-		if (empty($context['use_message_bookmarks']) || empty($context['user']['id']) || $this->isIgnoredBoard())
+		if (empty(allowedTo('use_message_bookmarks')) || empty($context['user']['id']) || $this->isIgnoredBoard())
 			return;
 
 		$add_label = empty($modSettings['mb_add_icon']) ? '&#128154;' : (strpos($modSettings['mb_add_icon'], 'fa') !== false ? ('<i class="' . $modSettings['mb_add_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_add_icon']));
@@ -508,7 +504,7 @@ final class MessageBookmarks
 	{
 		global $context, $modSettings, $smcFunc, $scripturl;
 
-		if ($context['current_action'] !== 'stats' || empty($context['use_message_bookmarks']))
+		if ($context['current_action'] !== 'stats' || empty(allowedTo('use_message_bookmarks')))
 			return;
 
 		// Most frequently bookmarked posts
