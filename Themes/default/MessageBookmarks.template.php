@@ -16,7 +16,7 @@ function template_bookmark()
 						<label for="title"><strong>', $txt['mb_subject'], ':</strong></label>
 					</dt>
 					<dd>
-						<input type="text" id="title" name="title" size="80" maxlength="255" class="input_text" value="', $context['mb_title'], '">
+						<input type="text" id="title" name="title" maxlength="255" class="input_text" value="', $context['mb_title'], '" style="width: 100%">
 					</dd>
 					<dt>
 						<label for="note"><strong>', $txt['mb_note'], ':</strong></label>
