@@ -9,7 +9,7 @@
  * @copyright 2013-2022 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.8
+ * @version 0.9
  */
 
 if (!defined('SMF'))
@@ -40,7 +40,7 @@ final class MessageBookmarks
 	 */
 	public function loadTheme()
 	{
-		loadLanguage('MessageBookmarks');
+		loadLanguage('MessageBookmarks/');
 	}
 
 	/**
@@ -280,13 +280,26 @@ final class MessageBookmarks
 						'reverse' => 'mb.bookmark_id'
 					)
 				),
+				'date' => array(
+					'header' => array(
+						'value' => $txt['date']
+					),
+					'data' => array(
+						'db'    => 'date',
+						'class' => 'centertext'
+					),
+					'sort' => array(
+						'default' => 'mb.created_at DESC',
+						'reverse' => 'mb.created_at'
+					)
+				),
 				'title' => array(
 					'header' => array(
 						'value' => $txt['title']
 					),
 					'data' => array(
 						'function' => function ($entry) use ($scripturl) {
-							return '<a href="' . $scripturl . '?msg=' . $entry['msg'] . '">' . $entry['title'] . '</a><br><p>' . $entry['note'] . '</p>';
+							return '<a href="' . $scripturl . '?msg=' . $entry['msg'] . '">' . $entry['title'] . '</a>' . ($entry['note'] ? '<br><details><p>' . $entry['note'] . '</p></details>' : '');
 						},
 					),
 					'sort' => array(
@@ -345,10 +358,10 @@ final class MessageBookmarks
 
 	public function getAll(int $start, int $items_per_page, string $sort): array
 	{
-		global $smcFunc, $context;
+		global $smcFunc, $context, $txt;
 
 		$request = $smcFunc['db_query']('', '
-			SELECT mb.bookmark_id, mb.msg_id, mb.bookmark_title, mb.bookmark_note, mb.user_id, b.id_board, b.name AS name
+			SELECT mb.bookmark_id, mb.msg_id, mb.bookmark_title, mb.bookmark_note, mb.user_id, mb.created_at, b.id_board, b.name AS name
 			FROM {db_prefix}message_bookmarks AS mb
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = mb.topic_id)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -371,6 +384,7 @@ final class MessageBookmarks
 
 			$items[] = [
 				'id'         => $row['bookmark_id'],
+				'date'       => $row['created_at'] ? timeformat($row['created_at']) : $txt['not_applicable'],
 				'msg'        => $row['msg_id'],
 				'title'      => $row['bookmark_title'],
 				'note'       => parse_bbc($row['bookmark_note']),
@@ -653,14 +667,16 @@ final class MessageBookmarks
 					'topic_id'       => 'int',
 					'bookmark_title' => 'string-255',
 					'bookmark_note'  => 'string-255',
-					'user_id'        => 'int'
+					'user_id'        => 'int',
+					'created_at'     => 'int'
 				),
 				array(
 					$msg,
 					$row['id_topic'],
 					$title,
 					$note,
-					$context['user']['id']
+					$context['user']['id'],
+					time()
 				),
 				array('bookmark_id')
 			);
@@ -710,12 +726,13 @@ final class MessageBookmarks
 
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}message_bookmarks
-				SET bookmark_title = {string:title}, bookmark_note = {string:note}
+				SET bookmark_title = {string:title}, bookmark_note = {string:note}, created_at = {int:time}
 				WHERE bookmark_id = {int:item}
 					AND user_id = {int:user}',
 				array(
 					'title' => $title,
 					'note'  => $note,
+					'time'  => time(),
 					'item'  => $item,
 					'user'  => $context['user']['id']
 				)
