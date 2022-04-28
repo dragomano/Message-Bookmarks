@@ -5,7 +5,7 @@
 [![Crowdin](https://badges.crowdin.net/message-bookmarks/localized.svg)](https://crowdin.com/project/message-bookmarks)
 
 * **Tested on:** PHP 7.4.29, MariaDB 10.6.5
-* **Languages:** English, Russian, Serbian, Italian, Turkish
+* **Languages:** English, Russian, Serbian, Italian, Turkish, Dutch, German
 
 ## Description
 With this mod, your users can create bookmarks for any messages in topics.

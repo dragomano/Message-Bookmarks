@@ -9,7 +9,7 @@
  * @copyright 2013-2022 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.9
+ * @version 0.9.1
  */
 
 if (!defined('SMF'))
@@ -24,6 +24,7 @@ final class MessageBookmarks
 		add_integration_function('integrate_load_illegal_guest_permissions', __CLASS__ . '::loadIllegalGuestPermissions#', false, __FILE__);
 		add_integration_function('integrate_load_permissions', __CLASS__ . '::loadPermissions#', false, __FILE__);
 		add_integration_function('integrate_admin_areas', __CLASS__ . '::adminAreas#', false, __FILE__);
+		add_integration_function('integrate_admin_search', __CLASS__ . '::adminSearch#', false, __FILE__);
 		add_integration_function('integrate_modify_modifications', __CLASS__ . '::modifyModifications#', false, __FILE__);
 		add_integration_function('integrate_query_message', __CLASS__ . '::queryMessage#', false, __FILE__);
 		add_integration_function('integrate_prepare_display_context', __CLASS__ . '::prepareDisplayContext#', false, __FILE__);
@@ -96,6 +97,11 @@ final class MessageBookmarks
 		$admin_areas['config']['areas']['modsettings']['subsections']['mb'] = [$txt['mb_settings']];
 	}
 
+	public function adminSearch(array &$language_files, array &$include_files, array &$settings_search)
+	{
+		$settings_search[] = [[$this, 'settings'], 'area=modsettings;sa=mb'];
+	}
+
 	/**
 	 * @hook integrate_modify_modifications
 	 */
@@ -104,13 +110,16 @@ final class MessageBookmarks
 		$subActions['mb'] = [$this, 'settings'];
 	}
 
-	public function settings()
+	/**
+	 * @return array|void
+	 */
+	public function settings(bool $return_config = false)
 	{
 		global $context, $txt, $scripturl, $modSettings, $smcFunc;
 
 		$context['page_title'] = $context['settings_title'] = $txt['mb_settings'];
 		$context['post_url'] = $scripturl . '?action=admin;area=modsettings;save;sa=mb';
-		$context[$context['admin_menu_name']]['tab_data']['description'] = $txt['mb_mod_desc'];
+
 		$context['permissions_excluded'] = [-1];
 
 		$txt['select_boards_from_list'] = $txt['mb_ignored_boards_desc'];
@@ -153,6 +162,11 @@ final class MessageBookmarks
 			['check', 'mb_show_top_members_stats'],
 			['int', 'mb_show_top_members_count'],
 		];
+
+		if ($return_config)
+			return $config_vars;
+
+		$context[$context['admin_menu_name']]['tab_data']['description'] = $txt['mb_mod_desc'];
 
 		if (isset($_GET['save'])) {
 			checkSession();
