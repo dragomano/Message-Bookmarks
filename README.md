@@ -4,8 +4,8 @@
 ![Hooks only: Yes](https://img.shields.io/badge/Hooks%20only-YES-blue)
 [![Crowdin](https://badges.crowdin.net/message-bookmarks/localized.svg)](https://crowdin.com/project/message-bookmarks)
 
-* **Tested on:** PHP 7.4.29, MariaDB 10.6.5
-* **Languages:** English, Russian, Serbian, Italian, Turkish, Dutch, German
+* **Tested on:** PHP 7.4.29, MariaDB 10.6.7
+* **Languages:** English, Russian, Serbian, Italian, Turkish, Dutch, German, Portuguese
 
 ## Description
 With this mod, your users can create bookmarks for any messages in topics.
