@@ -14,7 +14,6 @@
 
 if (!defined('SMF'))
 	die('No direct access...');
-	die('No direct access...');
 
 final class MessageBookmarks
 {
