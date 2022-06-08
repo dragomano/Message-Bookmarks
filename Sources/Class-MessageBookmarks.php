@@ -9,10 +9,11 @@
  * @copyright 2013-2022 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.9.1
+ * @version 0.9.3
  */
 
 if (!defined('SMF'))
+	die('No direct access...');
 	die('No direct access...');
 
 final class MessageBookmarks
@@ -546,9 +547,9 @@ final class MessageBookmarks
 				GROUP BY m.id_msg, m.subject, mb.msg_id
 				ORDER BY num_items DESC
 				LIMIT 10',
-				array(
-					'is_approved' => 1,
-				)
+				[
+					'is_approved' => 1
+				]
 			);
 
 			if ($smcFunc['db_num_rows']($result) > 0) {
@@ -597,7 +598,7 @@ final class MessageBookmarks
 				GROUP BY m.id_member, m.real_name, mb.user_id
 				ORDER BY num_items DESC
 				LIMIT 10',
-				array()
+				[]
 			);
 
 			if ($smcFunc['db_num_rows']($result) > 0) {
@@ -651,9 +652,9 @@ final class MessageBookmarks
 			SELECT subject, id_topic
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:id}',
-			array(
+			[
 				'id' => $msg
-			)
+			]
 		);
 
 		if (empty($request) || $smcFunc['db_num_rows']($request) == 0)
@@ -718,9 +719,9 @@ final class MessageBookmarks
 			FROM {db_prefix}message_bookmarks
 			WHERE bookmark_id = {int:item}
 			LIMIT 1',
-			array(
+			[
 				'item' => $item
-			)
+			]
 		);
 
 		list ($title, $note) = $smcFunc['db_fetch_row']($request);
