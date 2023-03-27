@@ -6,10 +6,10 @@
  * @package Message Bookmarks
  * @link https://dragomano.ru/mods/message-bookmarks
  * @author Bugo <bugo@dragomano.ru>
- * @copyright 2013-2022 Bugo
+ * @copyright 2013-2023 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.9.3
+ * @version 0.9.4
  */
 
 if (!defined('SMF'))
