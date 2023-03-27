@@ -148,14 +148,14 @@ final class MessageBookmarks
 				'mb_add_icon',
 				'subtext' => $txt['mb_icon_subtext'],
 				'value' => un_htmlspecialchars($modSettings['mb_add_icon'] ?? ''),
-				'postinput' => strpos($modSettings['mb_add_icon'], 'fa') !== false ? '<i class="' . $modSettings['mb_add_icon'] . '"></i>' : ''
+				'postinput' => strpos($modSettings['mb_add_icon'], ' ') !== false ? '<i class="' . $modSettings['mb_add_icon'] . '"></i>' : ''
 			],
 			[
 				'text',
 				'mb_del_icon',
 				'subtext' => $txt['mb_icon_subtext'],
 				'value' => un_htmlspecialchars($modSettings['mb_del_icon'] ?? ''),
-				'postinput' => strpos($modSettings['mb_del_icon'], 'fa') !== false ? '<i class="' . $modSettings['mb_del_icon'] . '"></i>' : ''
+				'postinput' => strpos($modSettings['mb_del_icon'], ' ') !== false ? '<i class="' . $modSettings['mb_del_icon'] . '"></i>' : ''
 			],
 			['permissions', 'use_message_bookmarks'],
 			['title', 'spider_stats'],
@@ -211,8 +211,8 @@ final class MessageBookmarks
 		if (empty(allowedTo('use_message_bookmarks')) || empty($context['user']['id']) || $this->isIgnoredBoard())
 			return;
 
-		$add_label = empty($modSettings['mb_add_icon']) ? '&#128154;' : (strpos($modSettings['mb_add_icon'], 'fa') !== false ? ('<i class="' . $modSettings['mb_add_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_add_icon']));
-		$del_label = empty($modSettings['mb_del_icon']) ? '&#128148;' : (strpos($modSettings['mb_del_icon'], 'fa') !== false ? ('<i class="' . $modSettings['mb_del_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_del_icon']));
+		$add_label = empty($modSettings['mb_add_icon']) ? '&#128154;' : (strpos($modSettings['mb_add_icon'], ' ') !== false ? ('<i class="' . $modSettings['mb_add_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_add_icon']));
+		$del_label = empty($modSettings['mb_del_icon']) ? '&#128148;' : (strpos($modSettings['mb_del_icon'], ' ') !== false ? ('<i class="' . $modSettings['mb_del_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_del_icon']));
 
 		$buttons = array(
 			'mb_add' => array(
