@@ -52,6 +52,9 @@ final class MessageBookmarks
 		$actionArray['mb'] = [false, [$this, 'init']];
 	}
 
+	/**
+	 * @return mixed|void
+	 */
 	public function init()
 	{
 		isAllowedTo('use_message_bookmarks');
@@ -127,16 +130,15 @@ final class MessageBookmarks
 		$addSettings = [];
 		if (!isset($modSettings['mb_class']))
 			$addSettings['mb_class'] = 'sticky';
-		if (!isset($modSettings['mb_add_icon']))
+		if (empty($modSettings['mb_add_icon']))
 			$addSettings['mb_add_icon'] = '&#128154;';
-		if (!isset($modSettings['mb_del_icon']))
+		if (empty($modSettings['mb_del_icon']))
 			$addSettings['mb_del_icon'] = '&#128148;';
 		if (!isset($modSettings['mb_show_top_messages_count']))
 			$addSettings['mb_show_top_messages_count'] = 10;
 		if (!isset($modSettings['mb_show_top_members_count']))
 			$addSettings['mb_show_top_members_count'] = 10;
-		if (!empty($addSettings))
-			updateSettings($addSettings);
+		updateSettings($addSettings);
 
 		$config_vars = [
 			['boards', 'mb_ignore_boards'],
@@ -202,7 +204,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_prepare_display_context
 	 */
-	public function prepareDisplayContext(array &$output, array &$message)
+	public function prepareDisplayContext(array &$output, array $message)
 	{
 		global $context, $modSettings, $txt, $scripturl;
 
@@ -590,7 +592,7 @@ final class MessageBookmarks
 
 		// Members with the most bookmarks
 		if (!empty($modSettings['mb_show_top_members_stats']) && ($context['stats_blocks']['members'] = cache_get_data('stats_top_mb_members', 3600)) == null) {
-			$result = $smcFunc['db_query']('', '
+			$result = $smcFunc['db_query']('', /** @lang text */ '
 				SELECT m.id_member, m.real_name, COUNT(mb.user_id) AS num_items
 				FROM {db_prefix}message_bookmarks AS mb
 					INNER JOIN {db_prefix}members AS m ON (m.id_member = mb.user_id)
@@ -671,8 +673,8 @@ final class MessageBookmarks
 		if (isset($_POST['make_bookmark']) && !empty($_POST['title'])) {
 			checkSession();
 
-			$title = isset($_POST['title']) ? (string) $_POST['title'] : '';
-			$note  = isset($_POST['note']) ? (string) $_POST['note'] : '';
+			$title = $smcFunc['htmlspecialchars']($_POST['title']);
+			$note  = isset($_POST['note']) ? $smcFunc['htmlspecialchars']($_POST['note']) : '';
 
 			$smcFunc['db_insert']('',
 				'{db_prefix}message_bookmarks',
@@ -723,7 +725,7 @@ final class MessageBookmarks
 			]
 		);
 
-		list ($title, $note) = $smcFunc['db_fetch_row']($request);
+		[$title, $note] = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		$context['form_hidden_vars']['item'] = $item;
@@ -735,8 +737,8 @@ final class MessageBookmarks
 		if (isset($_POST['make_bookmark']) && !empty($_POST['title']))	{
 			checkSession();
 
-			$title = isset($_POST['title']) ? (string) $_POST['title'] : $context['mb_title'];
-			$note  = isset($_POST['note']) ? (string) $_POST['note'] : $context['mb_note'];
+			$title = $smcFunc['htmlspecialchars']($_POST['title']);
+			$note  = isset($_POST['note']) ? $smcFunc['htmlspecialchars']($_POST['note']) : $context['mb_note'];
 
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}message_bookmarks
