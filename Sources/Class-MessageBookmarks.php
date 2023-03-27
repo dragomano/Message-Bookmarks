@@ -28,7 +28,7 @@ final class MessageBookmarks
 		add_integration_function('integrate_modify_modifications', __CLASS__ . '::modifyModifications#', false, __FILE__);
 		add_integration_function('integrate_query_message', __CLASS__ . '::queryMessage#', false, __FILE__);
 		add_integration_function('integrate_prepare_display_context', __CLASS__ . '::prepareDisplayContext#', false, __FILE__);
-		add_integration_function('integrate_pre_profile_areas', __CLASS__ . '::preProfileAreas#', false, __FILE__);
+		add_integration_function('integrate_profile_areas', __CLASS__ . '::profileAreas#', false, __FILE__);
 		add_integration_function('integrate_profile_popup', __CLASS__ . '::profilePopup#', false, __FILE__);
 		add_integration_function('integrate_delete_members', __CLASS__ . '::deleteMembers#', false, __FILE__);
 		add_integration_function('integrate_remove_message', __CLASS__ . '::removeMessage#', false, __FILE__);
@@ -235,9 +235,9 @@ final class MessageBookmarks
 	}
 
 	/**
-	 * @hook integrate_pre_profile_areas
+	 * @hook integrate_profile_areas
 	 */
-	public function preProfileAreas(array &$profile_areas)
+	public function profileAreas(array &$profile_areas)
 	{
 		global $txt, $context;
 
