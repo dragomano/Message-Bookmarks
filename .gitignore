@@ -1,2 +1,6 @@
 .idea/
 .vscode/
+
+Themes/default/languages/MessageBookmarks/*
+Themes/default/languages/MessageBookmarks/index.php
+!Themes/default/languages/MessageBookmarks/.english.php
