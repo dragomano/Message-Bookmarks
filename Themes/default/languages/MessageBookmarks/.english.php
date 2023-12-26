@@ -20,7 +20,7 @@ $txt['mb_show_top_members_stats'] = 'Show members with the most bookmarks';
 $txt['mb_show_top_members_count'] = 'Minimum number of bookmarks members have to display in the top';
 
 $txt['permissiongroup_message_bookmarks'] = $txt['permissiongroup_simple_message_bookmarks'] = 'Message Bookmarks';
-$txt['permissionname_use_message_bookmarks'] = 'Using bookmarks';
+$txt['permissionname_use_message_bookmarks'] = $txt['group_perms_name_use_message_bookmarks'] = 'Using bookmarks';
 $txt['permissionhelp_use_message_bookmarks'] = 'With this permission users will can to view, add and remove message bookmarks.';
 $txt['groups_use_message_bookmarks'] = 'Permisssions for use message bookmarks';
 $txt['cannot_use_message_bookmarks'] = 'Unfortunately, you have no right to make message bookmarks.';
