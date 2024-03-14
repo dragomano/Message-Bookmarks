@@ -6,10 +6,10 @@
  * @package Message Bookmarks
  * @link https://dragomano.ru/mods/message-bookmarks
  * @author Bugo <bugo@dragomano.ru>
- * @copyright 2013-2023 Bugo
+ * @copyright 2013-2024 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.9.4
+ * @version 0.9.5
  */
 
 if (!defined('SMF'))
@@ -17,7 +17,7 @@ if (!defined('SMF'))
 
 final class MessageBookmarks
 {
-	public function hooks()
+	public function hooks(): void
 	{
 		add_integration_function('integrate_load_theme', __CLASS__ . '::loadTheme#', false, __FILE__);
 		add_integration_function('integrate_actions', __CLASS__ . '::actions#', false, __FILE__);
@@ -39,7 +39,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_load_theme
 	 */
-	public function loadTheme()
+	public function loadTheme(): void
 	{
 		loadLanguage('MessageBookmarks/');
 	}
@@ -47,7 +47,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_actions
 	 */
-	public function actions(array &$actionArray)
+	public function actions(array &$actionArray): void
 	{
 		$actionArray['mb'] = [false, [$this, 'init']];
 	}
@@ -72,7 +72,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_load_illegal_guest_permissions
 	 */
-	public function loadIllegalGuestPermissions()
+	public function loadIllegalGuestPermissions(): void
 	{
 		global $context;
 
@@ -82,7 +82,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_load_permissions
 	 */
-	public function loadPermissions(array &$permissionGroups, array &$permissionList)
+	public function loadPermissions(array &$permissionGroups, array &$permissionList): void
 	{
 		$permissionGroups['membergroup']['simple']  = ['message_bookmarks'];
 		$permissionGroups['membergroup']['classic'] = ['message_bookmarks'];
@@ -93,14 +93,14 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_admin_areas
 	 */
-	public function adminAreas(array &$admin_areas)
+	public function adminAreas(array &$admin_areas): void
 	{
 		global $txt;
 
 		$admin_areas['config']['areas']['modsettings']['subsections']['mb'] = [$txt['mb_settings']];
 	}
 
-	public function adminSearch(array &$language_files, array &$include_files, array &$settings_search)
+	public function adminSearch(array &$language_files, array &$include_files, array &$settings_search): void
 	{
 		$settings_search[] = [[$this, 'settings'], 'area=modsettings;sa=mb'];
 	}
@@ -108,7 +108,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_modify_modifications
 	 */
-	public function modifyModifications(array &$subActions)
+	public function modifyModifications(array &$subActions): void
 	{
 		$subActions['mb'] = [$this, 'settings'];
 	}
@@ -189,7 +189,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_query_message
 	 */
-	public function queryMessage(array &$msg_selects, array &$msg_tables, array &$msg_parameters)
+	public function queryMessage(array &$msg_selects, array &$msg_tables, array &$msg_parameters): void
 	{
 		global $user_info;
 
@@ -204,7 +204,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_prepare_display_context
 	 */
-	public function prepareDisplayContext(array &$output, array $message)
+	public function prepareDisplayContext(array &$output, array $message): void
 	{
 		global $context, $modSettings, $txt, $scripturl;
 
@@ -214,20 +214,20 @@ final class MessageBookmarks
 		$add_label = empty($modSettings['mb_add_icon']) ? '&#128154;' : (strpos($modSettings['mb_add_icon'], ' ') !== false ? ('<i class="' . $modSettings['mb_add_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_add_icon']));
 		$del_label = empty($modSettings['mb_del_icon']) ? '&#128148;' : (strpos($modSettings['mb_del_icon'], ' ') !== false ? ('<i class="' . $modSettings['mb_del_icon'] . '"></i>') : un_htmlspecialchars($modSettings['mb_del_icon']));
 
-		$buttons = array(
-			'mb_add' => array(
+		$buttons = [
+			'mb_add' => [
 				'label' => $add_label,
 				'javascript' => ' title="' . $txt['mb_add_bookmark'] . '"',
 				'href' => $scripturl . '?action=mb;sa=add;topic=' . $context['current_topic'] . ';msg=' . $output['id'],
 				'show' => empty($message['bookmark_id'])
-			),
-			'mb_remove' => array(
+			],
+			'mb_remove' => [
 				'label' => $del_label,
 				'javascript' => ' title="' . $txt['mb_remove_bookmark'] . '"',
 				'href' => $scripturl . '?action=mb;sa=del;item=' . $message['bookmark_id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
 				'show' => !empty($message['bookmark_id'])
-			)
-		);
+			]
+		];
 
 		$output['quickbuttons'] = array_merge($buttons, $output['quickbuttons']);
 
@@ -239,11 +239,11 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_profile_areas
 	 */
-	public function profileAreas(array &$profile_areas)
+	public function profileAreas(array &$profile_areas): void
 	{
 		global $txt, $context;
 
-		$profile_areas['info']['areas']['bookmarks'] = array(
+		$profile_areas['info']['areas']['bookmarks'] = [
 			'label'      => $txt['mb_show_bookmarks'],
 			'function'   => __CLASS__ . '::showBookmarks#',
 			'icon'       => 'sticky',
@@ -251,10 +251,10 @@ final class MessageBookmarks
 			'permission' => [
 				'own' => 'use_message_bookmarks'
 			]
-		);
+		];
 	}
 
-	public function showBookmarks(int $memID)
+	public function showBookmarks(int $memID): void
 	{
 		global $context, $txt, $user_profile, $scripturl, $sourcedir;
 
@@ -268,7 +268,7 @@ final class MessageBookmarks
 			'icon_class'  => 'main_icons sticky icon'
 		];
 
-		$listOptions = array(
+		$listOptions = [
 			'id' => 'message_bookmarks',
 			'items_per_page' => 30,
 			'title' => $txt['mb_settings'],
@@ -281,67 +281,67 @@ final class MessageBookmarks
 			'get_count' => [
 				'function' => [$this, 'getTotalCount']
 			],
-			'columns' => array(
-				'id' => array(
-					'header' => array(
+			'columns' => [
+				'id' => [
+					'header' => [
 						'value' => '#',
 						'style' => 'width: 8%'
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db'    => 'id',
 						'class' => 'centertext'
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mb.bookmark_id DESC',
 						'reverse' => 'mb.bookmark_id'
-					)
-				),
-				'date' => array(
-					'header' => array(
+					]
+				],
+				'date' => [
+					'header' => [
 						'value' => $txt['date']
-					),
-					'data' => array(
+					],
+					'data' => [
 						'db'    => 'date',
 						'class' => 'centertext'
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mb.created_at DESC',
 						'reverse' => 'mb.created_at'
-					)
-				),
-				'title' => array(
-					'header' => array(
+					]
+				],
+				'title' => [
+					'header' => [
 						'value' => $txt['title']
-					),
-					'data' => array(
+					],
+					'data' => [
 						'function' => function ($entry) use ($scripturl) {
 							return '<a href="' . $scripturl . '?msg=' . $entry['msg'] . '">' . $entry['title'] . '</a>' . ($entry['note'] ? '<br><details><p>' . $entry['note'] . '</p></details>' : '');
 						},
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'mb.bookmark_title DESC',
 						'reverse' => 'mb.bookmark_title'
-					)
-				),
-				'board' => array(
-					'header' => array(
+					]
+				],
+				'board' => [
+					'header' => [
 						'value' => $txt['board']
-					),
-					'data' => array(
+					],
+					'data' => [
 						'function' => function ($entry) use ($scripturl) {
 							return '<a href="' . $scripturl . '?board=' . $entry['board_id'] . '.0">' . $entry['board_name'] . '</a>';
 						}
-					),
-					'sort' => array(
+					],
+					'sort' => [
 						'default' => 'name DESC',
 						'reverse' => 'name'
-					)
-				),
-				'actions' => array(
-					'header' => array(
+					]
+				],
+				'actions' => [
+					'header' => [
 						'value' => $txt['profileAction']
-					),
-					'data' => array(
+					],
+					'data' => [
 						'function' => function ($entry) use ($scripturl, $txt, $context) {
 							return $entry['can_manage'] ? '
 							<a
@@ -360,10 +360,10 @@ final class MessageBookmarks
 							</a>' : '';
 						},
 						'class' => 'centertext'
-					)
-				)
-			)
-		);
+					]
+				]
+			]
+		];
 
 		require_once($sourcedir . '/Subs-List.php');
 		createList($listOptions);
@@ -442,7 +442,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_profile_popup
 	 */
-	public function profilePopup(array &$profile_items)
+	public function profilePopup(array &$profile_items): void
 	{
 		global $txt;
 
@@ -470,7 +470,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_delete_members
 	 */
-	public function deleteMembers(array $users)
+	public function deleteMembers(array $users): void
 	{
 		global $smcFunc;
 
@@ -491,7 +491,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_remove_message
 	 */
-	public function removeMessage(int $message)
+	public function removeMessage(int $message): void
 	{
 		global $smcFunc;
 
@@ -512,7 +512,7 @@ final class MessageBookmarks
 	/**
 	 * @hook integrate_remove_topics
 	 */
-	public function removeTopics(array $topics)
+	public function removeTopics(array $topics): void
 	{
 		global $smcFunc;
 
@@ -530,7 +530,7 @@ final class MessageBookmarks
 		clean_cache();
 	}
 
-	public function forumStats()
+	public function forumStats(): void
 	{
 		global $context, $modSettings, $smcFunc, $scripturl;
 
@@ -563,12 +563,12 @@ final class MessageBookmarks
 
 					censorText($row['subject']);
 
-					$context['stats_blocks']['replies'][] = array(
+					$context['stats_blocks']['replies'][] = [
 						'id'   => $row['id_msg'],
 						'name' => $row['subject'],
 						'num'  => $row['num_items'],
 						'link' => '<a href="' . $scripturl . '?msg=' . $row['id_msg'] . '">' . $row['subject'] . '</a>'
-					);
+					];
 
 					if ($max_items < $row['num_items'])
 						$max_items = $row['num_items'];
@@ -610,12 +610,12 @@ final class MessageBookmarks
 					if ($row['num_items'] < (empty($modSettings['mb_show_top_members_count']) ? 10 : $modSettings['mb_show_top_members_count']))
 						continue;
 
-					$context['stats_blocks']['members'][] = array(
+					$context['stats_blocks']['members'][] = [
 						'id'   => $row['id_member'],
 						'name' => $row['real_name'],
 						'num'  => $row['num_items'],
 						'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
-					);
+					];
 
 					if ($max_items < $row['num_items'])
 						$max_items = $row['num_items'];
@@ -638,7 +638,7 @@ final class MessageBookmarks
 			unset($context['stats_blocks']['members']);
 	}
 
-	private function addBookmark()
+	private function addBookmark(): void
 	{
 		global $context, $smcFunc, $txt;
 
@@ -678,23 +678,23 @@ final class MessageBookmarks
 
 			$smcFunc['db_insert']('',
 				'{db_prefix}message_bookmarks',
-				array(
+				[
 					'msg_id'         => 'int',
 					'topic_id'       => 'int',
 					'bookmark_title' => 'string-255',
 					'bookmark_note'  => 'string-255',
 					'user_id'        => 'int',
 					'created_at'     => 'int'
-				),
-				array(
+				],
+				[
 					$msg,
 					$row['id_topic'],
 					$title,
 					$note,
 					$context['user']['id'],
 					time()
-				),
-				array('bookmark_id')
+				],
+				['bookmark_id']
 			);
 
 			redirectexit(empty($msg) ? 'topic=' . $row['id_topic'] . '.0' : 'msg=' . $msg);
@@ -704,7 +704,7 @@ final class MessageBookmarks
 		$context['page_title']   = $txt['mb_title'];
 	}
 
-	private function editBookmark()
+	private function editBookmark(): void
 	{
 		global $context, $smcFunc, $txt;
 
@@ -745,13 +745,13 @@ final class MessageBookmarks
 				SET bookmark_title = {string:title}, bookmark_note = {string:note}, created_at = {int:time}
 				WHERE bookmark_id = {int:item}
 					AND user_id = {int:user}',
-				array(
+				[
 					'title' => $title,
 					'note'  => $note,
 					'time'  => time(),
 					'item'  => $item,
 					'user'  => $context['user']['id']
-				)
+				]
 			);
 
 			redirectexit('action=profile;area=bookmarks;u=' . $context['user']['id']);
@@ -761,7 +761,7 @@ final class MessageBookmarks
 		$context['page_title']   = $txt['mb_title'];
 	}
 
-	private function delBookmark()
+	private function delBookmark(): void
 	{
 		global $context, $smcFunc;
 
@@ -774,10 +774,10 @@ final class MessageBookmarks
 			DELETE FROM {db_prefix}message_bookmarks
 			WHERE bookmark_id = {int:item}
 				AND user_id = {int:user}',
-			array(
+			[
 				'item' => $item,
 				'user' => $context['user']['id']
-			)
+			]
 		);
 
 		if ($context['current_action'] == 'profile')
