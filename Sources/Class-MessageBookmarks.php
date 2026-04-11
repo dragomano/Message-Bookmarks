@@ -6,34 +6,34 @@
  * @package Message Bookmarks
  * @link https://dragomano.ru/mods/message-bookmarks
  * @author Bugo <bugo@dragomano.ru>
- * @copyright 2013-2024 Bugo
+ * @copyright 2013-2026 Bugo
  * @license https://opensource.org/licenses/MIT MIT
  *
- * @version 0.9.5
+ * @version 0.9.6
  */
 
-if (!defined('SMF'))
+if (! defined('SMF'))
 	die('No direct access...');
 
 final class MessageBookmarks
 {
 	public function hooks(): void
 	{
-		add_integration_function('integrate_load_theme', __CLASS__ . '::loadTheme#', false, __FILE__);
-		add_integration_function('integrate_actions', __CLASS__ . '::actions#', false, __FILE__);
-		add_integration_function('integrate_load_illegal_guest_permissions', __CLASS__ . '::loadIllegalGuestPermissions#', false, __FILE__);
-		add_integration_function('integrate_load_permissions', __CLASS__ . '::loadPermissions#', false, __FILE__);
-		add_integration_function('integrate_admin_areas', __CLASS__ . '::adminAreas#', false, __FILE__);
-		add_integration_function('integrate_admin_search', __CLASS__ . '::adminSearch#', false, __FILE__);
-		add_integration_function('integrate_modify_modifications', __CLASS__ . '::modifyModifications#', false, __FILE__);
-		add_integration_function('integrate_query_message', __CLASS__ . '::queryMessage#', false, __FILE__);
-		add_integration_function('integrate_prepare_display_context', __CLASS__ . '::prepareDisplayContext#', false, __FILE__);
-		add_integration_function('integrate_profile_areas', __CLASS__ . '::profileAreas#', false, __FILE__);
-		add_integration_function('integrate_profile_popup', __CLASS__ . '::profilePopup#', false, __FILE__);
-		add_integration_function('integrate_delete_members', __CLASS__ . '::deleteMembers#', false, __FILE__);
-		add_integration_function('integrate_remove_message', __CLASS__ . '::removeMessage#', false, __FILE__);
-		add_integration_function('integrate_remove_topics', __CLASS__ . '::removeTopics#', false, __FILE__);
-		add_integration_function('integrate_forum_stats', __CLASS__ . '::forumStats#', false, __FILE__);
+		add_integration_function('integrate_load_theme', self::class . '::loadTheme#', false, __FILE__);
+		add_integration_function('integrate_actions', self::class . '::actions#', false, __FILE__);
+		add_integration_function('integrate_load_illegal_guest_permissions', self::class . '::loadIllegalGuestPermissions#', false, __FILE__);
+		add_integration_function('integrate_load_permissions', self::class . '::loadPermissions#', false, __FILE__);
+		add_integration_function('integrate_admin_areas', self::class . '::adminAreas#', false, __FILE__);
+		add_integration_function('integrate_admin_search', self::class . '::adminSearch#', false, __FILE__);
+		add_integration_function('integrate_modify_modifications', self::class . '::modifyModifications#', false, __FILE__);
+		add_integration_function('integrate_query_message', self::class . '::queryMessage#', false, __FILE__);
+		add_integration_function('integrate_prepare_display_context', self::class . '::prepareDisplayContext#', false, __FILE__);
+		add_integration_function('integrate_profile_areas', self::class . '::profileAreas#', false, __FILE__);
+		add_integration_function('integrate_profile_popup', self::class . '::profilePopup#', false, __FILE__);
+		add_integration_function('integrate_delete_members', self::class . '::deleteMembers#', false, __FILE__);
+		add_integration_function('integrate_remove_message', self::class . '::removeMessage#', false, __FILE__);
+		add_integration_function('integrate_remove_topics', self::class . '::removeTopics#', false, __FILE__);
+		add_integration_function('integrate_forum_stats', self::class . '::forumStats#', false, __FILE__);
 	}
 
 	/**
@@ -60,13 +60,14 @@ final class MessageBookmarks
 		isAllowedTo('use_message_bookmarks');
 
 		$subActions = [
-			'add'  => [__CLASS__, 'addBookmark'],
-			'edit' => [__CLASS__, 'editBookmark'],
-			'del'  => [__CLASS__, 'delBookmark']
+			'add'  => [self::class, 'addBookmark'],
+			'edit' => [self::class, 'editBookmark'],
+			'del'  => [self::class, 'delBookmark']
 		];
 
-		if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && !isset($_REQUEST['xml']))
+		if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && ! isset($_REQUEST['xml'])) {
 			return call_user_func($subActions[$_REQUEST['sa']]);
+		}
 	}
 
 	/**
@@ -121,24 +122,13 @@ final class MessageBookmarks
 		global $context, $txt, $scripturl, $modSettings, $smcFunc;
 
 		$context['page_title'] = $context['settings_title'] = $txt['mb_settings'];
-		$context['post_url'] = $scripturl . '?action=admin;area=modsettings;save;sa=mb';
+		$context['post_url']   = $scripturl . '?action=admin;area=modsettings;save;sa=mb';
 
 		$context['permissions_excluded'] = [-1];
 
 		$txt['select_boards_from_list'] = $txt['mb_ignored_boards_desc'];
 
-		$addSettings = [];
-		if (!isset($modSettings['mb_class']))
-			$addSettings['mb_class'] = 'sticky';
-		if (empty($modSettings['mb_add_icon']))
-			$addSettings['mb_add_icon'] = '&#128154;';
-		if (empty($modSettings['mb_del_icon']))
-			$addSettings['mb_del_icon'] = '&#128148;';
-		if (!isset($modSettings['mb_show_top_messages_count']))
-			$addSettings['mb_show_top_messages_count'] = 10;
-		if (!isset($modSettings['mb_show_top_members_count']))
-			$addSettings['mb_show_top_members_count'] = 10;
-		updateSettings($addSettings);
+		$this->addDefaultSettings();
 
 		$config_vars = [
 			['boards', 'mb_ignore_boards'],
@@ -146,15 +136,15 @@ final class MessageBookmarks
 			[
 				'text',
 				'mb_add_icon',
-				'subtext' => $txt['mb_icon_subtext'],
-				'value' => un_htmlspecialchars($modSettings['mb_add_icon'] ?? ''),
+				'subtext'   => $txt['mb_icon_subtext'],
+				'value'     => un_htmlspecialchars($modSettings['mb_add_icon'] ?? ''),
 				'postinput' => strpos($modSettings['mb_add_icon'], ' ') !== false ? '<i class="' . $modSettings['mb_add_icon'] . '"></i>' : ''
 			],
 			[
 				'text',
 				'mb_del_icon',
-				'subtext' => $txt['mb_icon_subtext'],
-				'value' => un_htmlspecialchars($modSettings['mb_del_icon'] ?? ''),
+				'subtext'   => $txt['mb_icon_subtext'],
+				'value'     => un_htmlspecialchars($modSettings['mb_del_icon'] ?? ''),
 				'postinput' => strpos($modSettings['mb_del_icon'], ' ') !== false ? '<i class="' . $modSettings['mb_del_icon'] . '"></i>' : ''
 			],
 			['permissions', 'use_message_bookmarks'],
@@ -165,19 +155,22 @@ final class MessageBookmarks
 			['int', 'mb_show_top_members_count'],
 		];
 
-		if ($return_config)
+		if ($return_config) {
 			return $config_vars;
+		}
 
 		$context[$context['admin_menu_name']]['tab_data']['description'] = $txt['mb_mod_desc'];
 
 		if (isset($_GET['save'])) {
 			checkSession();
 
-			if (isset($_POST['mb_add_icon']))
+			if (isset($_POST['mb_add_icon'])) {
 				$_POST['mb_add_icon'] = $smcFunc['htmlspecialchars']($_POST['mb_add_icon']);
+			}
 
-			if (isset($_POST['mb_del_icon']))
+			if (isset($_POST['mb_del_icon'])) {
 				$_POST['mb_del_icon'] = $smcFunc['htmlspecialchars']($_POST['mb_del_icon']);
+			}
 
 			saveDBSettings($config_vars);
 			redirectexit('action=admin;area=modsettings;sa=mb');
@@ -197,7 +190,8 @@ final class MessageBookmarks
 			return;
 
 		$msg_selects[] = 'mb.bookmark_id';
-		$msg_tables[] = 'LEFT JOIN {db_prefix}message_bookmarks AS mb ON (mb.msg_id = id_msg AND mb.user_id = {int:current_user})';
+		$msg_tables[]  = 'LEFT JOIN {db_prefix}message_bookmarks AS mb ON (mb.msg_id = id_msg AND mb.user_id = {int:current_user})';
+
 		$msg_parameters['current_user'] = $user_info['id'];
 	}
 
@@ -216,22 +210,22 @@ final class MessageBookmarks
 
 		$buttons = [
 			'mb_add' => [
-				'label' => $add_label,
+				'label'      => $add_label,
 				'javascript' => ' title="' . $txt['mb_add_bookmark'] . '"',
-				'href' => $scripturl . '?action=mb;sa=add;topic=' . $context['current_topic'] . ';msg=' . $output['id'],
-				'show' => empty($message['bookmark_id'])
+				'href'       => $scripturl . '?action=mb;sa=add;topic=' . $context['current_topic'] . ';msg=' . $output['id'],
+				'show'       => empty($message['bookmark_id']),
 			],
 			'mb_remove' => [
-				'label' => $del_label,
+				'label'      => $del_label,
 				'javascript' => ' title="' . $txt['mb_remove_bookmark'] . '"',
-				'href' => $scripturl . '?action=mb;sa=del;item=' . $message['bookmark_id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-				'show' => !empty($message['bookmark_id'])
+				'href'       => $scripturl . '?action=mb;sa=del;item=' . $message['bookmark_id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+				'show'       => ! empty($message['bookmark_id']),
 			]
 		];
 
 		$output['quickbuttons'] = array_merge($buttons, $output['quickbuttons']);
 
-		if (!empty($message['bookmark_id']) && !empty($modSettings['mb_class'])) {
+		if (! empty($message['bookmark_id']) && ! empty($modSettings['mb_class'])) {
 			$output['css_class'] .= ' ' . $modSettings['mb_class'];
 		}
 	}
@@ -245,12 +239,12 @@ final class MessageBookmarks
 
 		$profile_areas['info']['areas']['bookmarks'] = [
 			'label'      => $txt['mb_show_bookmarks'],
-			'function'   => __CLASS__ . '::showBookmarks#',
+			'function'   => self::class . '::showBookmarks#',
 			'icon'       => 'sticky',
 			'enabled'    => $context['user']['is_owner'],
 			'permission' => [
-				'own' => 'use_message_bookmarks'
-			]
+				'own' => 'use_message_bookmarks',
+			],
 		];
 	}
 
@@ -265,7 +259,7 @@ final class MessageBookmarks
 		$context[$context['profile_menu_name']]['tab_data'] = [
 			'title'       => $txt['mb_show_bookmarks'],
 			'description' => $txt['mb_profile_desc'],
-			'icon_class'  => 'main_icons sticky icon'
+			'icon_class'  => 'main_icons sticky icon',
 		];
 
 		$listOptions = [
@@ -276,42 +270,42 @@ final class MessageBookmarks
 			'base_href' => $scripturl . '?action=profile;area=bookmarks;u=' . $context['current_member'],
 			'default_sort_col' => 'title',
 			'get_items' => [
-				'function' => [$this, 'getAll']
+				'function' => [$this, 'getAll'],
 			],
 			'get_count' => [
-				'function' => [$this, 'getTotalCount']
+				'function' => [$this, 'getTotalCount'],
 			],
 			'columns' => [
 				'id' => [
 					'header' => [
 						'value' => '#',
-						'style' => 'width: 8%'
+						'style' => 'width: 8%',
 					],
 					'data' => [
 						'db'    => 'id',
-						'class' => 'centertext'
+						'class' => 'centertext',
 					],
 					'sort' => [
 						'default' => 'mb.bookmark_id DESC',
-						'reverse' => 'mb.bookmark_id'
-					]
+						'reverse' => 'mb.bookmark_id',
+					],
 				],
 				'date' => [
 					'header' => [
-						'value' => $txt['date']
+						'value' => $txt['date'],
 					],
 					'data' => [
 						'db'    => 'date',
-						'class' => 'centertext'
+						'class' => 'centertext',
 					],
 					'sort' => [
 						'default' => 'mb.created_at DESC',
-						'reverse' => 'mb.created_at'
-					]
+						'reverse' => 'mb.created_at',
+					],
 				],
 				'title' => [
 					'header' => [
-						'value' => $txt['title']
+						'value' => $txt['title'],
 					],
 					'data' => [
 						'function' => function ($entry) use ($scripturl) {
@@ -320,12 +314,12 @@ final class MessageBookmarks
 					],
 					'sort' => [
 						'default' => 'mb.bookmark_title DESC',
-						'reverse' => 'mb.bookmark_title'
-					]
+						'reverse' => 'mb.bookmark_title',
+					],
 				],
 				'board' => [
 					'header' => [
-						'value' => $txt['board']
+						'value' => $txt['board'],
 					],
 					'data' => [
 						'function' => function ($entry) use ($scripturl) {
@@ -334,12 +328,12 @@ final class MessageBookmarks
 					],
 					'sort' => [
 						'default' => 'name DESC',
-						'reverse' => 'name'
-					]
+						'reverse' => 'name',
+					],
 				],
 				'actions' => [
 					'header' => [
-						'value' => $txt['profileAction']
+						'value' => $txt['profileAction'],
 					],
 					'data' => [
 						'function' => function ($entry) use ($scripturl, $txt, $context) {
@@ -359,10 +353,10 @@ final class MessageBookmarks
 								<span class="main_icons remove_button"></span>
 							</a>' : '';
 						},
-						'class' => 'centertext'
-					]
-				]
-			]
+						'class' => 'centertext',
+					],
+				],
+			],
 		];
 
 		require_once($sourcedir . '/Subs-List.php');
@@ -377,7 +371,9 @@ final class MessageBookmarks
 		global $smcFunc, $context, $txt;
 
 		$request = $smcFunc['db_query']('', '
-			SELECT mb.bookmark_id, mb.msg_id, mb.bookmark_title, mb.bookmark_note, mb.user_id, mb.created_at, b.id_board, b.name AS name
+			SELECT
+				mb.bookmark_id, mb.msg_id, mb.bookmark_title, mb.bookmark_note,
+				mb.user_id, mb.created_at, b.id_board, b.name AS name
 			FROM {db_prefix}message_bookmarks AS mb
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = mb.topic_id)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -390,8 +386,8 @@ final class MessageBookmarks
 				'approved' => 1,
 				'sort'     => $sort,
 				'start'    => $start,
-				'limit'    => $items_per_page
-			]
+				'limit'    => $items_per_page,
+			],
 		);
 
 		$items = [];
@@ -406,7 +402,7 @@ final class MessageBookmarks
 				'note'       => parse_bbc($row['bookmark_note']),
 				'board_name' => $row['name'],
 				'board_id'   => $row['id_board'],
-				'can_manage' => $context['user']['id'] == $row['user_id']
+				'can_manage' => $context['user']['id'] == $row['user_id'],
 			];
 		}
 
@@ -428,8 +424,8 @@ final class MessageBookmarks
 				AND t.approved = {int:approved}',
 			[
 				'user_id'  => $context['current_member'],
-				'approved' => 1
-			]
+				'approved' => 1,
+			],
 		);
 
 		[$num_entries] = $smcFunc['db_fetch_row']($request);
@@ -460,10 +456,10 @@ final class MessageBookmarks
 				[
 					'menu'  => 'info',
 					'area'  => 'bookmarks',
-					'title' => $txt['mb_popup_bookmarks']
+					'title' => $txt['mb_popup_bookmarks'],
 				]
 			],
-			array_slice($profile_items, $counter, null, true)
+			array_slice($profile_items, $counter, null, true),
 		);
 	}
 
@@ -481,8 +477,8 @@ final class MessageBookmarks
 			DELETE FROM {db_prefix}message_bookmarks
 			WHERE user_id IN ({array_int:users})',
 			[
-				'users' => $users
-			]
+				'users' => $users,
+			],
 		);
 
 		clean_cache();
@@ -502,8 +498,8 @@ final class MessageBookmarks
 			DELETE FROM {db_prefix}message_bookmarks
 			WHERE msg_id = {int:id_msg}',
 			[
-				'id_msg' => $message
-			]
+				'id_msg' => $message,
+			],
 		);
 
 		clean_cache();
@@ -523,8 +519,8 @@ final class MessageBookmarks
 			DELETE FROM {db_prefix}message_bookmarks
 			WHERE topic_id IN ({array_int:topics})',
 			[
-				'topics' => $topics
-			]
+				'topics' => $topics,
+			],
 		);
 
 		clean_cache();
@@ -538,7 +534,7 @@ final class MessageBookmarks
 			return;
 
 		// Most frequently bookmarked posts
-		if (!empty($modSettings['mb_show_top_messages_stats']) && ($context['stats_blocks']['replies'] = cache_get_data('stats_top_mb_messages', 3600)) == null) {
+		if (! empty($modSettings['mb_show_top_messages_stats']) && ($context['stats_blocks']['replies'] = cache_get_data('stats_top_mb_messages', 3600)) == null) {
 			$result = $smcFunc['db_query']('', '
 				SELECT m.id_msg, m.subject, COUNT(mb.msg_id) AS num_items
 				FROM {db_prefix}message_bookmarks AS mb
@@ -549,8 +545,8 @@ final class MessageBookmarks
 				ORDER BY num_items DESC
 				LIMIT 10',
 				[
-					'is_approved' => 1
-				]
+					'is_approved' => 1,
+				],
 			);
 
 			if ($smcFunc['db_num_rows']($result) > 0) {
@@ -567,16 +563,17 @@ final class MessageBookmarks
 						'id'   => $row['id_msg'],
 						'name' => $row['subject'],
 						'num'  => $row['num_items'],
-						'link' => '<a href="' . $scripturl . '?msg=' . $row['id_msg'] . '">' . $row['subject'] . '</a>'
+						'link' => '<a href="' . $scripturl . '?msg=' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 					];
 
-					if ($max_items < $row['num_items'])
+					if ($max_items < $row['num_items']) {
 						$max_items = $row['num_items'];
+					}
 				}
 
 				$smcFunc['db_free_result']($result);
 
-				if (!empty($context['stats_blocks']['replies'])) {
+				if (! empty($context['stats_blocks']['replies'])) {
 					foreach ($context['stats_blocks']['replies'] as $i => $reply) {
 						$context['stats_blocks']['replies'][$i]['percent'] = round(($reply['num'] * 100) / $max_items);
 						$context['stats_blocks']['replies'][$i]['num'] = comma_format($context['stats_blocks']['replies'][$i]['num']);
@@ -587,11 +584,12 @@ final class MessageBookmarks
 			cache_put_data('stats_top_mb_messages', $context['stats_blocks']['replies'], 3600);
 		}
 
-		if (empty($context['stats_blocks']['replies']))
+		if (empty($context['stats_blocks']['replies'])) {
 			unset($context['stats_blocks']['replies']);
+		}
 
 		// Members with the most bookmarks
-		if (!empty($modSettings['mb_show_top_members_stats']) && ($context['stats_blocks']['members'] = cache_get_data('stats_top_mb_members', 3600)) == null) {
+		if (! empty($modSettings['mb_show_top_members_stats']) && ($context['stats_blocks']['members'] = cache_get_data('stats_top_mb_members', 3600)) == null) {
 			$result = $smcFunc['db_query']('', /** @lang text */ '
 				SELECT m.id_member, m.real_name, COUNT(mb.user_id) AS num_items
 				FROM {db_prefix}message_bookmarks AS mb
@@ -599,7 +597,7 @@ final class MessageBookmarks
 				GROUP BY m.id_member, m.real_name, mb.user_id
 				ORDER BY num_items DESC
 				LIMIT 10',
-				[]
+				[],
 			);
 
 			if ($smcFunc['db_num_rows']($result) > 0) {
@@ -614,16 +612,17 @@ final class MessageBookmarks
 						'id'   => $row['id_member'],
 						'name' => $row['real_name'],
 						'num'  => $row['num_items'],
-						'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
+						'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 					];
 
-					if ($max_items < $row['num_items'])
+					if ($max_items < $row['num_items']) {
 						$max_items = $row['num_items'];
+					}
 				}
 
 				$smcFunc['db_free_result']($result);
 
-				if (!empty($context['stats_blocks']['members'])) {
+				if (! empty($context['stats_blocks']['members'])) {
 					foreach ($context['stats_blocks']['members'] as $i => $member)	{
 						$context['stats_blocks']['members'][$i]['percent'] = round(($member['num'] * 100) / $max_items);
 						$context['stats_blocks']['members'][$i]['num'] = comma_format($context['stats_blocks']['members'][$i]['num']);
@@ -634,8 +633,9 @@ final class MessageBookmarks
 			cache_put_data('stats_top_mb_members', $context['stats_blocks']['members'], 3600);
 		}
 
-		if (empty($context['stats_blocks']['members']))
+		if (empty($context['stats_blocks']['members'])) {
 			unset($context['stats_blocks']['members']);
+		}
 	}
 
 	private function addBookmark(): void
@@ -654,12 +654,13 @@ final class MessageBookmarks
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:id}',
 			[
-				'id' => $msg
-			]
+				'id' => $msg,
+			],
 		);
 
-		if (empty($request) || $smcFunc['db_num_rows']($request) == 0)
+		if (empty($request) || $smcFunc['db_num_rows']($request) == 0) {
 			fatal_lang_error('error_no_subject', false);
+		}
 
 		$row = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
@@ -670,13 +671,13 @@ final class MessageBookmarks
 		$context['mb_title'] = $row['subject'];
 		$context['mb_note']  = '';
 
-		if (isset($_POST['make_bookmark']) && !empty($_POST['title'])) {
+		if (isset($_POST['make_bookmark']) && ! empty($_POST['title'])) {
 			checkSession();
 
 			$title = $smcFunc['htmlspecialchars']($_POST['title']);
 			$note  = isset($_POST['note']) ? $smcFunc['htmlspecialchars']($_POST['note']) : '';
 
-			$smcFunc['db_insert']('',
+			$smcFunc['db_insert']('ignore',
 				'{db_prefix}message_bookmarks',
 				[
 					'msg_id'         => 'int',
@@ -684,7 +685,7 @@ final class MessageBookmarks
 					'bookmark_title' => 'string-255',
 					'bookmark_note'  => 'string-255',
 					'user_id'        => 'int',
-					'created_at'     => 'int'
+					'created_at'     => 'int',
 				],
 				[
 					$msg,
@@ -692,9 +693,9 @@ final class MessageBookmarks
 					$title,
 					$note,
 					$context['user']['id'],
-					time()
+					time(),
 				],
-				['bookmark_id']
+				['bookmark_id'],
 			);
 
 			redirectexit(empty($msg) ? 'topic=' . $row['id_topic'] . '.0' : 'msg=' . $msg);
@@ -721,8 +722,8 @@ final class MessageBookmarks
 			WHERE bookmark_id = {int:item}
 			LIMIT 1',
 			[
-				'item' => $item
-			]
+				'item' => $item,
+			],
 		);
 
 		[$title, $note] = $smcFunc['db_fetch_row']($request);
@@ -734,7 +735,7 @@ final class MessageBookmarks
 		$context['mb_title'] = $title;
 		$context['mb_note']  = $note;
 
-		if (isset($_POST['make_bookmark']) && !empty($_POST['title']))	{
+		if (isset($_POST['make_bookmark']) && ! empty($_POST['title']))	{
 			checkSession();
 
 			$title = $smcFunc['htmlspecialchars']($_POST['title']);
@@ -750,8 +751,8 @@ final class MessageBookmarks
 					'note'  => $note,
 					'time'  => time(),
 					'item'  => $item,
-					'user'  => $context['user']['id']
-				]
+					'user'  => $context['user']['id'],
+				],
 			);
 
 			redirectexit('action=profile;area=bookmarks;u=' . $context['user']['id']);
@@ -776,15 +777,16 @@ final class MessageBookmarks
 				AND user_id = {int:user}',
 			[
 				'item' => $item,
-				'user' => $context['user']['id']
-			]
+				'user' => $context['user']['id'],
+			],
 		);
 
 		if ($context['current_action'] == 'profile')
 			redirectexit('action=profile;area=bookmarks;u=' . $context['user']['id']);
 
-		if (!empty($_SERVER['HTTP_REFERER']))
+		if (! empty($_SERVER['HTTP_REFERER'])) {
 			redirectexit($_SERVER['HTTP_REFERER']);
+		}
 	}
 
 	private function isIgnoredBoard(): bool
@@ -793,12 +795,43 @@ final class MessageBookmarks
 
 		$ignoreBoards = [];
 
-		if (!empty($modSettings['mb_ignore_boards']))
+		if (! empty($modSettings['mb_ignore_boards'])) {
 			$ignoreBoards = explode(',', $modSettings['mb_ignore_boards']);
+		}
 
-		if (!empty($modSettings['recycle_board']))
+		if (! empty($modSettings['recycle_board'])) {
 			$ignoreBoards[] = $modSettings['recycle_board'];
+		}
 
 		return in_array($context['current_board'], $ignoreBoards);
+	}
+
+	private function addDefaultSettings(): void
+	{
+		global $modSettings;
+
+		$addSettings = [];
+
+		if (! isset($modSettings['mb_class'])) {
+			$addSettings['mb_class'] = 'sticky';
+		}
+
+		if (empty($modSettings['mb_add_icon'])) {
+			$addSettings['mb_add_icon'] = '&#128154;';
+		}
+
+		if (empty($modSettings['mb_del_icon'])) {
+			$addSettings['mb_del_icon'] = '&#128148;';
+		}
+
+		if (! isset($modSettings['mb_show_top_messages_count'])) {
+			$addSettings['mb_show_top_messages_count'] = 10;
+		}
+
+		if (! isset($modSettings['mb_show_top_members_count'])) {
+			$addSettings['mb_show_top_members_count'] = 10;
+		}
+
+		updateSettings($addSettings);
 	}
 }
